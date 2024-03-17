@@ -70,29 +70,26 @@ if __name__ == '__main__':
     final1 = 0
     table = []
     regx=st.text_input("Enter the Regular Expression")
-    if(not check(regx)):
-        st.write(f"**Enter a Valid Regular Expression**")
-    
-    else:
-        regx = in_to_post(regx)
-        i = 0
-        while i < len(regx):
-            if regx[i].isalpha():
-                if i+1<len(regx) and regx[i + 1].isalpha():
-                    mktrans(regx[i], regx[i + 1], regx[i + 2])
-                    i += 2
-                else:
-                    single(regx[i])
-            elif regx[i] == '*':
-                kleene()
-            i += 1
+    regx = in_to_post(regx)
+    i = 0
+    while i < len(regx):
+        if regx[i].isalpha():
+            if i+1<len(regx) and regx[i + 1].isalpha():
+                mktrans(regx[i], regx[i + 1], regx[i + 2])
+                i += 2
+            else:
+                single(regx[i])
+        elif regx[i] == '*':
+            kleene()
+        i += 1
 
-        for transition in table:
-            transition['start'] += abs(start1)
-            transition['final'] += abs(start1)
+    for transition in table:
+        transition['start'] += abs(start1)
+        transition['final'] += abs(start1)
 
-        table.sort(key=lambda x: x['start'])
-        if(st.button("Generate Table")):
+    table.sort(key=lambda x: x['start'])
+    if(st.button("Generate Table")):
+        if(check(regx)):
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.write(f"**Start State**")
@@ -109,4 +106,5 @@ if __name__ == '__main__':
                     st.write(f"q[{transition['final']}]")
                 with col3:
                     st.write(f"{transition['symbol']}")
-            
+        else:
+            st.write(f"**Enter a Valid Regular Expression**")
