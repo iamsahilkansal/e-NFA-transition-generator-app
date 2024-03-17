@@ -69,7 +69,12 @@ if __name__ == '__main__':
     start1 = 0
     final1 = 0
     table = []
-    regx=st.text_input("Enter the Regular Expression")
+    col1, col2=st.columns(2)
+    with col1:
+        st.write("##")
+        st.write("Enter the Regular Expression")
+    with col2:
+        regx=st.text_input("")
     regx = in_to_post(regx)
     i = 0
     while i < len(regx):
