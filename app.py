@@ -1,4 +1,24 @@
 import streamlit as st
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def viewGraph(table):
+    st.header("e-NFA Transitions Graph")
+    edges = []
+    for transition in table:
+        edges.append((transition['start'], transition['final'], transition['symbol']))
+    
+    G = nx.DiGraph()
+    G.add_edges_from((u, v) for u, v, _ in edges)
+    pos = nx.spring_layout(G)  
+    num_nodes = len(G.nodes())
+    base_node_size = 1000
+    node_size = max(base_node_size // num_nodes, 100)
+    nx.draw(G, pos, with_labels=True, node_color='lightblue', font_weight='bold', node_size=node_size)
+    edge_labels = {(u, v): symbol for u, v, symbol in edges}
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+    st.pyplot(plt)
+
 def in_to_post(infix):
     precedence = {'|': 1, '*': 2, '.': 1, '(': 0}
     postfix = []
@@ -111,5 +131,6 @@ if __name__ == '__main__':
                     st.write(f"q[{transition['final']}]")
                 with col3:
                     st.write(f"{transition['symbol']}")
+            viewGraph(table)
         else:
             st.write(f"**Enter a Valid Regular Expression**")
