@@ -91,7 +91,6 @@ if __name__ == '__main__':
     table = []
     col1, col2=st.columns(2)
     with col1:
-        st.write("##")
         st.write("Enter the Regular Expression")
     with col2:
         regx=st.text_input("")
