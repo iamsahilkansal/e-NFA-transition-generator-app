@@ -17,9 +17,13 @@ This project is a web app that generates an epsilon-NFA (e-NFA) Transition Table
 
 ## How It Works
 
-1. The user inputs a regular expression into the provided field.
-2. The app processes the regular expression using stacks to break it down into components.
-3. The e-NFA transition table is generated and displayed on the screen.
+1. Go to URL
+   ```bash
+   https://iamsahilkansal-e-nfa-transition-generator-app.streamlit.app/
+   ```
+3. The user inputs a regular expression into the provided field.
+4. The app processes the regular expression using stacks to break it down into components.
+5. The e-NFA transition table is generated and displayed on the screen.
 
 ## Getting Started
 
