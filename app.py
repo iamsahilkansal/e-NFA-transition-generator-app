@@ -2,7 +2,7 @@ import streamlit as st
 import networkx as nx
 import matplotlib.pyplot as plt
 
-# --- INFIX TO POSTFIX ---
+# ---------------- INFIX → POSTFIX ----------------
 def in_to_post(infix):
     precedence = {'|': 1, '.': 2, '*': 3, '(': 0}
     output, stack = [], []
@@ -23,7 +23,7 @@ def in_to_post(infix):
         output.append(stack.pop())
     return ''.join(output)
 
-# --- NFA STRUCTURES ---
+# ---------------- NFA STRUCTURES ----------------
 class NFA:
     def __init__(self, start, end, transitions):
         self.start = start
@@ -68,7 +68,7 @@ def kleene(a, counter):
     ]
     return NFA(s, e, transitions)
 
-# --- BUILD NFA FROM POSTFIX ---
+# ---------------- BUILD NFA ----------------
 def build_nfa(postfix):
     stack = []
     counter = [0]
@@ -88,9 +88,34 @@ def build_nfa(postfix):
             stack.append(union(a, b, counter))
     return stack.pop()
 
-# --- VISUALIZE GRAPH ---
+# ---------------- SIMULATION HELPERS ----------------
+def epsilon_closure(states, transitions):
+    stack = list(states)
+    closure = set(states)
+    while stack:
+        state = stack.pop()
+        for t in transitions:
+            if t['start'] == state and t['symbol'] == 'ε' and t['final'] not in closure:
+                closure.add(t['final'])
+                stack.append(t['final'])
+    return closure
+
+def move(states, symbol, transitions):
+    next_states = set()
+    for t in transitions:
+        if t['start'] in states and t['symbol'] == symbol:
+            next_states.add(t['final'])
+    return next_states
+
+def simulate_nfa(nfa, input_string):
+    current_states = epsilon_closure({nfa.start}, nfa.transitions)
+    for symbol in input_string:
+        current_states = epsilon_closure(move(current_states, symbol, nfa.transitions), nfa.transitions)
+    return nfa.end in current_states
+
+# ---------------- VISUALIZATION ----------------
 def viewGraph(transitions):
-    st.header("ε-NFA Graph")
+    st.subheader("ε-NFA Graph")
     G = nx.DiGraph()
     for t in transitions:
         G.add_edge(f"q{t['start']}", f"q{t['final']}", label=t['symbol'])
@@ -100,20 +125,28 @@ def viewGraph(transitions):
     nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
     st.pyplot(plt)
 
-# --- STREAMLIT UI ---
-st.title("ε-NFA Generator from Regular Expression")
+# ---------------- STREAMLIT UI ----------------
+st.title("ε-NFA Generator and Simulator")
 
 regex = st.text_input("Enter Regular Expression (use '.' for concat, '|' for union, '*' for Kleene star):")
+test_string = st.text_input("Enter Test String (empty for ε):")
 
-if st.button("Generate ε-NFA"):
+if st.button("Build and Test"):
     if regex:
         postfix = in_to_post(regex)
         nfa = build_nfa(postfix)
-        
+        st.write(f"**Postfix:** `{postfix}`")
+
         st.subheader("Transition Table")
         for t in nfa.transitions:
             st.write(f"q{t['start']} → q{t['final']} : {t['symbol']}")
-        
+
+        accepted = simulate_nfa(nfa, test_string)
+        if accepted:
+            st.success(f"✅ The string '{test_string if test_string else 'ε'}' is ACCEPTED by the NFA")
+        else:
+            st.error(f"❌ The string '{test_string if test_string else 'ε'}' is REJECTED by the NFA")
+
         viewGraph(nfa.transitions)
     else:
         st.warning("Please enter a valid regular expression.")
